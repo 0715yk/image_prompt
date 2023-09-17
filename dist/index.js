@@ -10,7 +10,7 @@ const imagePrompt = (function () {
     let historyStep = 0;
     const brushOptions = {
         strokeWidth: 30,
-        color: "#ffffff",
+        strokeColor: "#ffffff",
     };
     let drawingModeOn = false;
     let drawingMode = "brush";
@@ -19,6 +19,7 @@ const imagePrompt = (function () {
     let drawLayer = null;
     let imageLayer = null;
     let currentLine = null;
+    const containerSizeOption = { width: null, height: null };
     const eventListener = new EventListeners();
     return {
         goTo(index) {
@@ -82,7 +83,7 @@ const imagePrompt = (function () {
         off(eventType, eventCallback) {
             eventListener.removeEventListener(eventType, eventCallback);
         },
-        init: function ({ container, brushOption, width, height, on, cache, }) {
+        init: function ({ container, brushOption, width, height, on, cache, containerSize, }) {
             var _a;
             if (cache) {
                 stage = Konva.Node.create(cache, container);
@@ -108,9 +109,11 @@ const imagePrompt = (function () {
             stage.add(drawLayer);
             let isPaint = false;
             if (brushOption) {
-                brushOptions.color = brushOption.color;
+                brushOptions.strokeColor = brushOption.strokeColor;
                 brushOptions.strokeWidth = brushOption.strokeWidth;
             }
+            containerSizeOption.width = containerSize.width;
+            containerSizeOption.height = containerSize.height;
             stage.on("mousedown", () => {
                 if (!drawingModeOn)
                     return;
@@ -122,7 +125,7 @@ const imagePrompt = (function () {
                         const y = (pointerPosition.y - drawLayer.y()) / scale;
                         const minValue = 0.0001;
                         currentLine = new Konva.Line({
-                            stroke: brushOptions === null || brushOptions === void 0 ? void 0 : brushOptions.color,
+                            stroke: brushOptions === null || brushOptions === void 0 ? void 0 : brushOptions.strokeColor,
                             strokeWidth: (brushOptions === null || brushOptions === void 0 ? void 0 : brushOptions.strokeWidth) / scale,
                             globalCompositeOperation: drawingMode === "brush" ? "source-over" : "destination-out",
                             lineCap: "round",
@@ -210,10 +213,15 @@ const imagePrompt = (function () {
                 });
             }
         },
-        importImage({ src, containerWidth, containerHeight, selectedWidth, selectedHeight, }) {
+        importImage({ src, selectedWidth, selectedHeight, }) {
             const imageElement = new Image();
+            const { width: containerWidth, height: containerHeight } = containerSizeOption;
             imageElement.onload = () => {
-                if (stage === null || imageLayer === null || drawLayer === null)
+                if (stage === null ||
+                    imageLayer === null ||
+                    drawLayer === null ||
+                    containerWidth === null ||
+                    containerHeight === null)
                     return;
                 const { width: stageW, height: stageH } = getContainSize(containerWidth, containerHeight, selectedWidth, selectedHeight);
                 stage.width(stageW);
@@ -281,11 +289,11 @@ const imagePrompt = (function () {
             });
         },
         setStrokeColor(color) {
-            brushOptions.color = color;
+            brushOptions.strokeColor = color;
             if (!drawingModeOn || drawingMode === "eraser")
                 return;
             if (stage !== null && brushOptions.strokeWidth !== null) {
-                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth, color, drawingMode === "brush" ? color : undefined);
+                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
             }
         },
         setStrokeWidth(width) {
@@ -297,8 +305,8 @@ const imagePrompt = (function () {
             }
             if (!drawingModeOn)
                 return;
-            if (stage !== null && brushOptions.color !== null) {
-                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth, drawingMode === "eraser" ? "none" : brushOptions.color, drawingMode === "brush" ? brushOptions.color : undefined);
+            if (stage !== null && brushOptions.strokeColor !== null) {
+                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
             }
         },
         setDrawingMode(mode) {
@@ -317,14 +325,14 @@ const imagePrompt = (function () {
                     drawingModeOn = true;
                     drawLayer.show();
                     if (stage !== null) {
-                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth, "none");
+                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
                     }
                 }
                 else if (mode === "brush") {
                     drawingModeOn = true;
                     drawLayer.show();
                     if (stage !== null) {
-                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth, brushOptions.color, brushOptions.color);
+                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
                     }
                 }
                 drawingMode = mode;

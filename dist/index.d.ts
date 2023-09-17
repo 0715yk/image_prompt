@@ -4,11 +4,11 @@ declare const imagePrompt: {
     redo(): void;
     on(eventType: string, eventCallback: (...args: any) => void): void;
     off(eventType: string, eventCallback: (...args: any) => void): void;
-    init: ({ container, brushOption, width, height, on, cache, }: {
+    init: ({ container, brushOption, width, height, on, cache, containerSize, }: {
         container: string | HTMLDivElement;
         brushOption?: {
             strokeWidth: number;
-            color: string;
+            strokeColor: string;
         } | undefined;
         width?: number | undefined;
         height?: number | undefined;
@@ -16,11 +16,13 @@ declare const imagePrompt: {
             [eventType: string]: (arg: any) => void;
         } | undefined;
         cache?: string | undefined;
+        containerSize: {
+            width: null | number;
+            height: null | number;
+        };
     }) => void;
-    importImage({ src, containerWidth, containerHeight, selectedWidth, selectedHeight, }: {
+    importImage({ src, selectedWidth, selectedHeight, }: {
         src: string;
-        containerWidth: number;
-        containerHeight: number;
         selectedWidth: number;
         selectedHeight: number;
     }): void;

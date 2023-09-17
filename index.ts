@@ -371,9 +371,7 @@ const imagePrompt = (function () {
       if (!drawingModeOn || drawingMode === "eraser") return;
       if (stage !== null && brushOptions.strokeWidth !== null) {
         stage.container().style.cursor = getDrawCursor(
-          brushOptions.strokeWidth,
-          color,
-          drawingMode === "brush" ? color : undefined
+          brushOptions.strokeWidth
         );
       }
     },
@@ -386,9 +384,7 @@ const imagePrompt = (function () {
       if (!drawingModeOn) return;
       if (stage !== null && brushOptions.strokeColor !== null) {
         stage.container().style.cursor = getDrawCursor(
-          brushOptions.strokeWidth,
-          drawingMode === "eraser" ? "none" : brushOptions.strokeColor,
-          drawingMode === "brush" ? brushOptions.strokeColor : undefined
+          brushOptions.strokeWidth
         );
       }
     },
@@ -407,8 +403,7 @@ const imagePrompt = (function () {
           drawLayer.show();
           if (stage !== null) {
             stage.container().style.cursor = getDrawCursor(
-              brushOptions.strokeWidth,
-              "none"
+              brushOptions.strokeWidth
             );
           }
         } else if (mode === "brush") {
@@ -416,9 +411,7 @@ const imagePrompt = (function () {
           drawLayer.show();
           if (stage !== null) {
             stage.container().style.cursor = getDrawCursor(
-              brushOptions.strokeWidth,
-              brushOptions.strokeColor,
-              brushOptions.strokeColor
+              brushOptions.strokeWidth
             );
           }
         }
