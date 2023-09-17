@@ -24,8 +24,6 @@ declare const imagePrompt: {
         selectedWidth: number;
         selectedHeight: number;
     }): void;
-    exportMask(): Promise<Blob | undefined>;
-    exportMaskingImage(): Promise<Blob | undefined>;
     exportImage(): Promise<Blob | undefined>;
     setStrokeColor(color: string): void;
     setStrokeWidth(width: number | string): void;

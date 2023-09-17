@@ -17,8 +17,8 @@ const imagePrompt = (function () {
 
   const brushOptions = {
     strokeWidth: 30,
-    color: "#ffffff",
-  } as { strokeWidth: number; color: string };
+    strokeColor: "#ffffff",
+  } as { strokeWidth: number; strokeColor: string };
 
   let drawingModeOn = false;
   let drawingMode: "brush" | "eraser" | "on" | "off" = "brush";
@@ -27,6 +27,11 @@ const imagePrompt = (function () {
   let drawLayer = null as null | Konva.Layer;
   let imageLayer = null as null | Konva.Layer;
   let currentLine: Konva.Line | null = null;
+
+  const containerSizeOption: {
+    width: null | number;
+    height: null | number;
+  } = { width: null, height: null };
 
   const eventListener = new EventListeners();
 
@@ -101,15 +106,20 @@ const imagePrompt = (function () {
       height,
       on,
       cache,
+      containerSize,
     }: {
       container: string | HTMLDivElement;
-      brushOption?: { strokeWidth: number; color: string };
+      brushOption?: { strokeWidth: number; strokeColor: string };
       width?: number;
       height?: number;
       on?: {
         [eventType: string]: (arg: any) => void;
       };
       cache?: string;
+      containerSize: {
+        width: null | number;
+        height: null | number;
+      };
     }) {
       if (cache) {
         stage = Konva.Node.create(cache, container) as Konva.Stage;
@@ -138,9 +148,12 @@ const imagePrompt = (function () {
       let isPaint = false;
 
       if (brushOption) {
-        brushOptions.color = brushOption.color;
+        brushOptions.strokeColor = brushOption.strokeColor;
         brushOptions.strokeWidth = brushOption.strokeWidth;
       }
+
+      containerSizeOption.width = containerSize.width;
+      containerSizeOption.height = containerSize.height;
 
       stage.on("mousedown", () => {
         if (!drawingModeOn) return;
@@ -153,7 +166,7 @@ const imagePrompt = (function () {
             const y = (pointerPosition.y - drawLayer.y()) / scale;
             const minValue = 0.0001;
             currentLine = new Konva.Line({
-              stroke: brushOptions?.color,
+              stroke: brushOptions?.strokeColor,
               strokeWidth: brushOptions?.strokeWidth / scale,
               globalCompositeOperation:
                 drawingMode === "brush" ? "source-over" : "destination-out",
@@ -247,21 +260,26 @@ const imagePrompt = (function () {
     },
     importImage({
       src,
-      containerWidth,
-      containerHeight,
       selectedWidth,
       selectedHeight,
     }: {
       src: string;
-      containerWidth: number;
-      containerHeight: number;
       selectedWidth: number;
       selectedHeight: number;
     }) {
       const imageElement = new Image();
+      const { width: containerWidth, height: containerHeight } =
+        containerSizeOption;
 
       imageElement.onload = () => {
-        if (stage === null || imageLayer === null || drawLayer === null) return;
+        if (
+          stage === null ||
+          imageLayer === null ||
+          drawLayer === null ||
+          containerWidth === null ||
+          containerHeight === null
+        )
+          return;
         const { width: stageW, height: stageH } = getContainSize(
           containerWidth,
           containerHeight,
@@ -349,7 +367,7 @@ const imagePrompt = (function () {
       });
     },
     setStrokeColor(color: string) {
-      brushOptions.color = color;
+      brushOptions.strokeColor = color;
       if (!drawingModeOn || drawingMode === "eraser") return;
       if (stage !== null && brushOptions.strokeWidth !== null) {
         stage.container().style.cursor = getDrawCursor(
@@ -366,11 +384,11 @@ const imagePrompt = (function () {
         brushOptions.strokeWidth = width;
       }
       if (!drawingModeOn) return;
-      if (stage !== null && brushOptions.color !== null) {
+      if (stage !== null && brushOptions.strokeColor !== null) {
         stage.container().style.cursor = getDrawCursor(
           brushOptions.strokeWidth,
-          drawingMode === "eraser" ? "none" : brushOptions.color,
-          drawingMode === "brush" ? brushOptions.color : undefined
+          drawingMode === "eraser" ? "none" : brushOptions.strokeColor,
+          drawingMode === "brush" ? brushOptions.strokeColor : undefined
         );
       }
     },
@@ -399,8 +417,8 @@ const imagePrompt = (function () {
           if (stage !== null) {
             stage.container().style.cursor = getDrawCursor(
               brushOptions.strokeWidth,
-              brushOptions.color,
-              brushOptions.color
+              brushOptions.strokeColor,
+              brushOptions.strokeColor
             );
           }
         }
