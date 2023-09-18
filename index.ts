@@ -362,7 +362,8 @@ const imagePrompt = (function () {
       }).then(() => {
         if (stage !== null && context !== null) {
           context.drawImage(foreground, 0, 0, output.width, output.height);
-          return dataURItoBlob(canvas.toDataURL("image/png"));
+          const pngURL = canvas.toDataURL("image/png");
+          return pngURL;
         }
       });
     },

@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { dataURItoBlob, getContainSize, getDrawCursor, EventListeners, } from "./libs";
+import { getContainSize, getDrawCursor, EventListeners, } from "./libs";
 const imagePrompt = (function () {
     const output = {
         width: 0,
@@ -284,7 +284,8 @@ const imagePrompt = (function () {
             }).then(() => {
                 if (stage !== null && context !== null) {
                     context.drawImage(foreground, 0, 0, output.width, output.height);
-                    return dataURItoBlob(canvas.toDataURL("image/png"));
+                    const pngURL = canvas.toDataURL("image/png");
+                    return pngURL;
                 }
             });
         },

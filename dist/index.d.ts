@@ -26,7 +26,7 @@ declare const imagePrompt: {
         selectedWidth: number;
         selectedHeight: number;
     }): void;
-    exportImage(): Promise<Blob | undefined>;
+    exportImage(): Promise<string | undefined>;
     setStrokeColor(color: string): void;
     setStrokeWidth(width: number | string): void;
     setDrawingMode(mode: "brush" | "eraser" | "on" | "off"): void;
