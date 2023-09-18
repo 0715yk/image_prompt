@@ -4,6 +4,7 @@ import {
   getContainSize,
   getDrawCursor,
   EventListeners,
+  loadImage,
 } from "./libs";
 
 const imagePrompt = (function () {
@@ -261,7 +262,7 @@ const imagePrompt = (function () {
         });
       }
     },
-    importImage({
+    async importImage({
       src,
       selectedWidth,
       selectedHeight,
@@ -270,79 +271,79 @@ const imagePrompt = (function () {
       selectedWidth: number;
       selectedHeight: number;
     }) {
-      const imageElement = new Image();
       const { width: containerWidth, height: containerHeight } =
         containerSizeOption;
 
-      imageElement.onload = () => {
-        if (
-          stage === null ||
-          imageLayer === null ||
-          drawLayer === null ||
-          containerWidth === null ||
-          containerHeight === null
-        )
-          return;
-        const { width: stageW, height: stageH } = getContainSize(
-          containerWidth,
-          containerHeight,
-          selectedWidth,
-          selectedHeight
-        );
+      const imageElement = (await loadImage(src)) as HTMLImageElement;
 
-        stage.width(stageW);
-        stage.height(stageH);
+      if (
+        stage === null ||
+        imageLayer === null ||
+        drawLayer === null ||
+        containerWidth === null ||
+        containerHeight === null
+      )
+        return;
 
-        const { width: imageW, height: imageH } = imageElement;
+      const { width: stageW, height: stageH } = getContainSize(
+        containerWidth,
+        containerHeight,
+        selectedWidth,
+        selectedHeight
+      );
 
-        const stageRatio = stageW / stageH;
-        const imageRatio = imageW / imageH;
+      stage.width(stageW);
+      stage.height(stageH);
 
-        let width = stageW;
-        let height = stageH;
-        let x = 0;
-        let y = 0;
+      const { width: imageW, height: imageH } = imageElement;
 
-        if (stageRatio < imageRatio) {
-          width = stageH * imageRatio;
-          x = (stageW - width) / 2;
-        } else if (stageRatio > imageRatio) {
-          height = stageW / imageRatio;
-          y = (stageH - height) / 2;
-        }
+      const stageRatio = stageW / stageH;
+      const imageRatio = imageW / imageH;
 
-        scale = stageRatio < imageRatio ? stageH / imageH : stageW / imageW;
+      let width = stageW;
+      let height = stageH;
+      let x = 0;
+      let y = 0;
 
-        imageLayer.destroyChildren();
-        imageLayer.add(
-          new Konva.Image({ image: imageElement, width, height, x, y })
-        );
-        const copyDiv = document.createElement("div");
-        copyDiv.id = "app";
-        document.body.appendChild(copyDiv);
+      if (stageRatio < imageRatio) {
+        width = stageH * imageRatio;
+        x = (stageW - width) / 2;
+      } else if (stageRatio > imageRatio) {
+        height = stageW / imageRatio;
+        y = (stageH - height) / 2;
+      }
 
-        const copyStage = new Konva.Stage({
-          container: "app",
-          width: stageW,
-          height: stageH,
-        });
+      scale = stageRatio < imageRatio ? stageH / imageH : stageW / imageW;
 
-        copyStage.add(imageLayer.clone());
-        const base64 = copyStage.toCanvas().toDataURL("image/png", 0);
-        Object.assign(output, {
-          width: selectedWidth,
-          height: selectedHeight,
-          image: base64,
-        });
+      imageLayer.destroyChildren();
+      imageLayer.add(
+        new Konva.Image({ image: imageElement, width, height, x, y })
+      );
+      const copyDiv = document.createElement("div");
+      copyDiv.id = "app";
+      document.body.appendChild(copyDiv);
 
-        copyDiv.remove();
-        copyStage.remove();
-        drawLayer.position({ x, y });
-        drawLayer.scale({ x: scale, y: scale });
-        drawLayer.moveToTop();
-      };
+      const copyStage = new Konva.Stage({
+        container: "app",
+        width: stageW,
+        height: stageH,
+      });
 
-      imageElement.src = src;
+      copyStage.add(imageLayer.clone());
+      const base64 = copyStage.toCanvas().toDataURL("image/png", 0);
+      Object.assign(output, {
+        width: selectedWidth,
+        height: selectedHeight,
+        image: base64,
+      });
+
+      copyDiv.remove();
+      copyStage.remove();
+      drawLayer.position({ x, y });
+      drawLayer.scale({ x: scale, y: scale });
+      drawLayer.moveToTop();
+
+      return base64;
     },
     exportImage() {
       const canvas = document.createElement("canvas");

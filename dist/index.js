@@ -1,5 +1,14 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import Konva from "konva";
-import { getContainSize, getDrawCursor, EventListeners, } from "./libs";
+import { getContainSize, getDrawCursor, EventListeners, loadImage, } from "./libs";
 const imagePrompt = (function () {
     const output = {
         width: 0,
@@ -217,9 +226,9 @@ const imagePrompt = (function () {
             }
         },
         importImage({ src, selectedWidth, selectedHeight, }) {
-            const imageElement = new Image();
-            const { width: containerWidth, height: containerHeight } = containerSizeOption;
-            imageElement.onload = () => {
+            return __awaiter(this, void 0, void 0, function* () {
+                const { width: containerWidth, height: containerHeight } = containerSizeOption;
+                const imageElement = (yield loadImage(src));
                 if (stage === null ||
                     imageLayer === null ||
                     drawLayer === null ||
@@ -267,8 +276,8 @@ const imagePrompt = (function () {
                 drawLayer.position({ x, y });
                 drawLayer.scale({ x: scale, y: scale });
                 drawLayer.moveToTop();
-            };
-            imageElement.src = src;
+                return base64;
+            });
         },
         exportImage() {
             const canvas = document.createElement("canvas");
