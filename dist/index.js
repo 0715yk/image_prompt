@@ -22,6 +22,9 @@ const imagePrompt = (function () {
     const containerSizeOption = { width: null, height: null };
     const eventListener = new EventListeners();
     return {
+        getStage() {
+            return stage;
+        },
         goTo(index) {
             if (drawLayer !== null) {
                 history = history.filter((line, _) => {

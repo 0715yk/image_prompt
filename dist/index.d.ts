@@ -1,4 +1,5 @@
 declare const imagePrompt: {
+    getStage(): import("konva/lib/Stage").Stage | null;
     goTo(index: number): void;
     undo(): void;
     redo(): void;

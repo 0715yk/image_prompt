@@ -36,6 +36,9 @@ const imagePrompt = (function () {
   const eventListener = new EventListeners();
 
   return {
+    getStage() {
+      return stage;
+    },
     goTo(index: number) {
       if (drawLayer !== null) {
         history = history.filter((line, _) => {
