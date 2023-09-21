@@ -148,7 +148,6 @@ const imagePrompt = (function () {
         });
         cursorLayer = new Konva.Layer({
           id: "cursorLayer",
-          zIndex: 9999,
         });
 
         cursorRing = new Konva.Ring({
