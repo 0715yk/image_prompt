@@ -32,6 +32,5 @@ declare const imagePrompt: {
     setStrokeWidth(width: number | string): void;
     setDrawingMode(mode: "brush" | "eraser" | "on" | "off"): void;
     deleteImage(): void;
-    destroyStage(): void;
 };
 export default imagePrompt;

@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import Konva from "konva";
-import { getContainSize, getDrawCursor, EventListeners, loadImage, } from "./libs";
+import { getContainSize, EventListeners, loadImage } from "./libs";
 const imagePrompt = (function () {
     const output = {
         width: 0,
@@ -27,14 +27,11 @@ const imagePrompt = (function () {
     let stage = null;
     let drawLayer = null;
     let imageLayer = null;
+    let cursorLayer = null;
+    let cursorRing = null;
     let currentLine = null;
     const containerSizeOption = { width: null, height: null };
     const eventListener = new EventListeners();
-    window.addEventListener("resize", function () {
-        if (stage === null)
-            return;
-        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
-    });
     return {
         getStage() {
             return stage;
@@ -106,8 +103,12 @@ const imagePrompt = (function () {
                 stage = Konva.Node.create(cache, container);
                 const iLayer = stage.findOne("#imageLayer");
                 const dLayer = stage.findOne("#drawLayer");
+                const cLayer = stage.findOne("#cursorLayer");
+                const cursor = cLayer.findOne("#ring");
                 imageLayer = iLayer;
                 drawLayer = dLayer;
+                cursorLayer = cLayer;
+                cursorRing = cursor;
             }
             else {
                 stage = new Konva.Stage({
@@ -121,9 +122,23 @@ const imagePrompt = (function () {
                 drawLayer = new Konva.Layer({
                     id: "drawLayer",
                 });
+                cursorLayer = new Konva.Layer({
+                    id: "cursorLayer",
+                });
+                cursorRing = new Konva.Ring({
+                    innerRadius: brushOptions.strokeWidth / 2 / scale,
+                    outerRadius: (brushOptions.strokeWidth / 2 + 3) / scale,
+                    fill: "#FFFFFF",
+                    id: "ring",
+                    stroke: "black",
+                    strokeWidth: 0.6,
+                    zIndex: 9999,
+                });
             }
             stage.add(imageLayer);
             stage.add(drawLayer);
+            stage.add(cursorLayer);
+            cursorLayer.add(cursorRing);
             let isPaint = false;
             if (brushOption) {
                 brushOptions.strokeColor = brushOption.strokeColor;
@@ -131,6 +146,7 @@ const imagePrompt = (function () {
             }
             containerSizeOption.width = containerSize.width;
             containerSizeOption.height = containerSize.height;
+            stage.container().style.cursor = "none";
             stage.on("mousedown", () => {
                 if (!drawingModeOn)
                     return;
@@ -140,30 +156,33 @@ const imagePrompt = (function () {
                     if (drawLayer !== null && pointerPosition !== null) {
                         const x = (pointerPosition.x - drawLayer.x()) / scale;
                         const y = (pointerPosition.y - drawLayer.y()) / scale;
-                        const minValue = 0.0001;
                         currentLine = new Konva.Line({
                             stroke: brushOptions === null || brushOptions === void 0 ? void 0 : brushOptions.strokeColor,
                             strokeWidth: (brushOptions === null || brushOptions === void 0 ? void 0 : brushOptions.strokeWidth) / scale,
                             globalCompositeOperation: drawingMode === "brush" ? "source-over" : "destination-out",
                             lineCap: "round",
                             lineJoin: "round",
-                            points: [x, y, x + minValue, y + minValue],
+                            points: [x, y, x, y],
                         });
                         drawLayer.add(currentLine);
                     }
                 }
             });
             stage.on("mousemove", ({ evt }) => {
-                if (!drawingModeOn)
-                    return;
-                if (!isPaint)
-                    return;
                 evt.preventDefault();
                 if (stage !== null) {
                     const pointerPosition = stage.getPointerPosition();
-                    if (drawLayer !== null && pointerPosition !== null) {
+                    if (drawLayer !== null &&
+                        pointerPosition !== null &&
+                        cursorRing !== null) {
                         const x = (pointerPosition.x - drawLayer.x()) / scale;
                         const y = (pointerPosition.y - drawLayer.y()) / scale;
+                        cursorRing.x(x);
+                        cursorRing.y(y);
+                        if (!drawingModeOn)
+                            return;
+                        if (!isPaint)
+                            return;
                         if (currentLine !== null) {
                             currentLine.points(currentLine.points().concat([x, y]));
                         }
@@ -193,7 +212,15 @@ const imagePrompt = (function () {
             }
             if (container instanceof HTMLDivElement) {
                 const divElement = container === null || container === void 0 ? void 0 : container.firstChild;
+                divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseenter", function () {
+                    if (cursorRing !== null) {
+                        cursorRing.show();
+                        cursorRing.moveToTop();
+                    }
+                });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
+                    if (cursorRing !== null)
+                        cursorRing.hide();
                     if (!isPaint)
                         return;
                     if (!drawingModeOn)
@@ -212,7 +239,15 @@ const imagePrompt = (function () {
             }
             else {
                 const divElement = (_a = document.querySelector(container)) === null || _a === void 0 ? void 0 : _a.firstChild;
+                divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseenter", function () {
+                    if (cursorRing !== null) {
+                        cursorRing.show();
+                        cursorRing.moveToTop();
+                    }
+                });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
+                    if (cursorRing !== null)
+                        cursorRing.hide();
                     if (!isPaint)
                         return;
                     if (!drawingModeOn)
@@ -232,13 +267,16 @@ const imagePrompt = (function () {
         },
         importImage({ src, selectedWidth, selectedHeight, }) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (cursorLayer !== null)
+                    cursorLayer.show();
                 const { width: containerWidth, height: containerHeight } = containerSizeOption;
                 const imageElement = (yield loadImage(src));
                 if (stage === null ||
                     imageLayer === null ||
                     drawLayer === null ||
                     containerWidth === null ||
-                    containerHeight === null)
+                    containerHeight === null ||
+                    cursorLayer === null)
                     return;
                 const { width: stageW, height: stageH } = getContainSize(containerWidth, containerHeight, selectedWidth, selectedHeight);
                 stage.width(stageW);
@@ -281,6 +319,11 @@ const imagePrompt = (function () {
                 drawLayer.position({ x, y });
                 drawLayer.scale({ x: scale, y: scale });
                 drawLayer.moveToTop();
+                cursorLayer.position({ x, y });
+                cursorLayer.scale({ x: scale, y: scale });
+                cursorLayer.moveToTop();
+                cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
+                cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
                 return base64;
             });
         },
@@ -296,6 +339,8 @@ const imagePrompt = (function () {
                     const copyStage = stage.clone();
                     const copyDrawLayer = copyStage.findOne("#drawLayer");
                     copyDrawLayer.show();
+                    const copyCursorLayer = copyStage.findOne("#cursorLayer");
+                    copyCursorLayer.hide();
                     foreground.src = copyStage.toDataURL({ pixelRatio: 2 });
                 }
             }).then(() => {
@@ -310,9 +355,6 @@ const imagePrompt = (function () {
             brushOptions.strokeColor = color;
             if (!drawingModeOn || drawingMode === "eraser")
                 return;
-            if (stage !== null && brushOptions.strokeWidth !== null) {
-                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
-            }
         },
         setStrokeWidth(width) {
             if (typeof width === "string") {
@@ -323,16 +365,18 @@ const imagePrompt = (function () {
             }
             if (!drawingModeOn)
                 return;
-            if (stage !== null && brushOptions.strokeColor !== null) {
-                stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
+            if (cursorRing !== null) {
+                cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
+                cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
             }
         },
         setDrawingMode(mode) {
-            if (stage !== null && drawLayer !== null) {
+            if (stage !== null && drawLayer !== null && cursorLayer !== null) {
                 if (mode === "off") {
                     drawLayer.hide();
                     drawingModeOn = false;
                     stage.container().style.cursor = "not-allowed";
+                    cursorLayer.hide();
                     return;
                 }
                 else if (mode === "on") {
@@ -342,33 +386,33 @@ const imagePrompt = (function () {
                 else if (mode === "eraser") {
                     drawingModeOn = true;
                     drawLayer.show();
-                    if (stage !== null) {
-                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
+                    stage.container().style.cursor = "none";
+                    cursorLayer.show();
+                    if (cursorRing !== null) {
+                        cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
+                        cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
                     }
                 }
                 else if (mode === "brush") {
                     drawingModeOn = true;
                     drawLayer.show();
-                    if (stage !== null) {
-                        stage.container().style.cursor = getDrawCursor(brushOptions.strokeWidth);
+                    stage.container().style.cursor = "none";
+                    cursorLayer.show();
+                    if (cursorRing !== null) {
+                        cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
+                        cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
                     }
                 }
                 drawingMode = mode;
             }
         },
         deleteImage() {
-            if (drawLayer !== null && imageLayer !== null) {
+            if (drawLayer !== null && imageLayer !== null && cursorLayer !== null) {
                 drawLayer.destroyChildren();
                 imageLayer.destroyChildren();
+                cursorLayer.hide();
                 history = [];
                 historyStep = 0;
-            }
-        },
-        destroyStage() {
-            if (stage !== null) {
-                stage.destroyChildren();
-                stage.destroy();
-                stage = null;
             }
         },
     };
