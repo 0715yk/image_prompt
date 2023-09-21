@@ -139,6 +139,7 @@ const imagePrompt = (function () {
             stage.add(drawLayer);
             stage.add(cursorLayer);
             cursorLayer.add(cursorRing);
+            cursorLayer.hide();
             let isPaint = false;
             if (brushOption) {
                 brushOptions.strokeColor = brushOption.strokeColor;
@@ -213,14 +214,14 @@ const imagePrompt = (function () {
             if (container instanceof HTMLDivElement) {
                 const divElement = container === null || container === void 0 ? void 0 : container.firstChild;
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseenter", function () {
-                    if (cursorRing !== null) {
-                        cursorRing.show();
-                        cursorRing.moveToTop();
+                    if (cursorLayer !== null) {
+                        cursorLayer.show();
+                        cursorLayer.moveToTop();
                     }
                 });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
-                    if (cursorRing !== null)
-                        cursorRing.hide();
+                    if (cursorLayer !== null)
+                        cursorLayer.hide();
                     if (!isPaint)
                         return;
                     if (!drawingModeOn)
@@ -240,14 +241,14 @@ const imagePrompt = (function () {
             else {
                 const divElement = (_a = document.querySelector(container)) === null || _a === void 0 ? void 0 : _a.firstChild;
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseenter", function () {
-                    if (cursorRing !== null) {
-                        cursorRing.show();
-                        cursorRing.moveToTop();
+                    if (cursorLayer !== null) {
+                        cursorLayer.show();
+                        cursorLayer.moveToTop();
                     }
                 });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
-                    if (cursorRing !== null)
-                        cursorRing.hide();
+                    if (cursorLayer !== null)
+                        cursorLayer.hide();
                     if (!isPaint)
                         return;
                     if (!drawingModeOn)
@@ -267,8 +268,6 @@ const imagePrompt = (function () {
         },
         importImage({ src, selectedWidth, selectedHeight, }) {
             return __awaiter(this, void 0, void 0, function* () {
-                if (cursorLayer !== null)
-                    cursorLayer.show();
                 const { width: containerWidth, height: containerHeight } = containerSizeOption;
                 const imageElement = (yield loadImage(src));
                 if (stage === null ||
@@ -387,7 +386,6 @@ const imagePrompt = (function () {
                     drawingModeOn = true;
                     drawLayer.show();
                     stage.container().style.cursor = "none";
-                    cursorLayer.show();
                     if (cursorRing !== null) {
                         cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
                         cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
@@ -397,7 +395,6 @@ const imagePrompt = (function () {
                     drawingModeOn = true;
                     drawLayer.show();
                     stage.container().style.cursor = "none";
-                    cursorLayer.show();
                     if (cursorRing !== null) {
                         cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.innerRadius(brushOptions.strokeWidth / 2 / scale);
                         cursorRing === null || cursorRing === void 0 ? void 0 : cursorRing.outerRadius((brushOptions.strokeWidth / 2 + 3) / scale);
