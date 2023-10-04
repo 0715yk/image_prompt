@@ -537,9 +537,11 @@ const imagePrompt = (function () {
         drawLayer.destroyChildren();
         imageLayer.destroyChildren();
         cursorLayer.hide();
-        history = [];
-        historyStep = 0;
       }
+    },
+    resetHistory() {
+      history = [];
+      historyStep = 0;
     },
   };
 })();
