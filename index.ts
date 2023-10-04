@@ -252,7 +252,8 @@ const imagePrompt = (function () {
         }
       });
 
-      stage.on("mouseup", () => {
+      stage.on("mouseup", ({ evt }) => {
+        evt.stopPropagation();
         if (stage === null) return;
         if (!drawingModeOn) return;
         if (!isPaint) return;
@@ -296,9 +297,7 @@ const imagePrompt = (function () {
           }
         });
 
-        window?.addEventListener("mouseup", function (e) {
-          const eventTarget = e.target as Element;
-          if (eventTarget.parentNode === (divElement as Element)) return;
+        window?.addEventListener("mouseup", function () {
           if (stage === null) return;
           if (cursorLayer !== null) cursorLayer.hide();
           if (!isPaint) return;
@@ -336,9 +335,7 @@ const imagePrompt = (function () {
           }
         });
 
-        window?.addEventListener("mouseup", function (e) {
-          const eventTarget = e.target as Element;
-          if (eventTarget.parentNode === (divElement as Element)) return;
+        window?.addEventListener("mouseup", function () {
           if (stage === null) return;
           if (cursorLayer !== null) cursorLayer.hide();
           if (!isPaint) return;
