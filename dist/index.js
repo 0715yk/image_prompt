@@ -240,6 +240,14 @@ const imagePrompt = (function () {
                     }
                 });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
+                    if (cursorLayer !== null) {
+                        cursorLayer.hide();
+                    }
+                });
+                window === null || window === void 0 ? void 0 : window.addEventListener("mouseup", function (e) {
+                    const eventTarget = e.target;
+                    if (eventTarget.parentNode === divElement)
+                        return;
                     if (stage === null)
                         return;
                     if (cursorLayer !== null)
@@ -272,6 +280,14 @@ const imagePrompt = (function () {
                     }
                 });
                 divElement === null || divElement === void 0 ? void 0 : divElement.addEventListener("mouseleave", function () {
+                    if (cursorLayer !== null) {
+                        cursorLayer.hide();
+                    }
+                });
+                window === null || window === void 0 ? void 0 : window.addEventListener("mouseup", function (e) {
+                    const eventTarget = e.target;
+                    if (eventTarget.parentNode === divElement)
+                        return;
                     if (stage === null)
                         return;
                     if (cursorLayer !== null)

@@ -291,6 +291,14 @@ const imagePrompt = (function () {
         });
 
         divElement?.addEventListener("mouseleave", function () {
+          if (cursorLayer !== null) {
+            cursorLayer.hide();
+          }
+        });
+
+        window?.addEventListener("mouseup", function (e) {
+          const eventTarget = e.target as Element;
+          if (eventTarget.parentNode === (divElement as Element)) return;
           if (stage === null) return;
           if (cursorLayer !== null) cursorLayer.hide();
           if (!isPaint) return;
@@ -323,6 +331,14 @@ const imagePrompt = (function () {
         });
 
         divElement?.addEventListener("mouseleave", function () {
+          if (cursorLayer !== null) {
+            cursorLayer.hide();
+          }
+        });
+
+        window?.addEventListener("mouseup", function (e) {
+          const eventTarget = e.target as Element;
+          if (eventTarget.parentNode === (divElement as Element)) return;
           if (stage === null) return;
           if (cursorLayer !== null) cursorLayer.hide();
           if (!isPaint) return;
