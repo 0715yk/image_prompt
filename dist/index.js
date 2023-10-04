@@ -337,7 +337,7 @@ const imagePrompt = (function () {
                     y = (stageH - height) / 2;
                 }
                 scale = stageRatio < imageRatio ? stageH / imageH : stageW / imageW;
-                imageLayer.destroyChildren();
+                imageLayer.removeChildren();
                 imageLayer.add(new Konva.Image({ image: imageElement, width, height, x, y }));
                 const copyDiv = document.createElement("div");
                 copyDiv.id = "app";
@@ -446,8 +446,8 @@ const imagePrompt = (function () {
         },
         deleteImage() {
             if (drawLayer !== null && imageLayer !== null && cursorLayer !== null) {
-                drawLayer.destroyChildren();
-                imageLayer.destroyChildren();
+                drawLayer.removeChildren();
+                imageLayer.removeChildren();
                 cursorLayer.hide();
             }
         },
