@@ -25,6 +25,13 @@ const imagePrompt = (function () {
 
   let cursorRing: Konva.Ring | null = null;
   let currentLine: Konva.Line | null = null;
+  let cache = {
+    drawLayer: null as null | Konva.Layer,
+    history: {
+      historyArr: null as null | Konva.Line[],
+      historyStep: null as null | number,
+    },
+  };
 
   const containerSizeOption: {
     width: null | number;
@@ -534,18 +541,29 @@ const imagePrompt = (function () {
     },
     deleteImage() {
       if (drawLayer !== null && imageLayer !== null && cursorLayer !== null) {
+        cache.drawLayer = drawLayer.clone();
+        cache.history.historyArr = history;
+        cache.history.historyStep = historyStep;
+
+        drawLayer.removeChildren();
         imageLayer.removeChildren();
         cursorLayer.hide();
+        history = [];
+        historyStep = 0;
       }
     },
-    resetDrawLayer() {
-      if (drawLayer !== null) {
-        drawLayer.removeChildren();
+    undoDrawingHistory() {
+      if (
+        stage !== null &&
+        cache.drawLayer !== null &&
+        cache.history.historyArr !== null &&
+        cache.history.historyStep !== null
+      ) {
+        stage.add(cache.drawLayer);
+        stage.batchDraw();
+        history = cache.history.historyArr;
+        historyStep = cache.history.historyStep;
       }
-    },
-    resetHistory() {
-      history = [];
-      historyStep = 0;
     },
   };
 })();
