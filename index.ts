@@ -534,9 +534,13 @@ const imagePrompt = (function () {
     },
     deleteImage() {
       if (drawLayer !== null && imageLayer !== null && cursorLayer !== null) {
-        drawLayer.removeChildren();
         imageLayer.removeChildren();
         cursorLayer.hide();
+      }
+    },
+    resetDrawLayer() {
+      if (drawLayer !== null) {
+        drawLayer.removeChildren();
       }
     },
     resetHistory() {
