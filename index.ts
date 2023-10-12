@@ -452,7 +452,7 @@ const imagePrompt = (function () {
 
       return base64;
     },
-    exportImage() {
+    exportAll() {
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
       const foreground = new Image();
