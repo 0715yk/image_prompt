@@ -348,7 +348,7 @@ const imagePrompt = (function () {
                     height: stageH,
                 });
                 copyStage.add(imageLayer.clone());
-                const base64 = copyStage.toCanvas().toDataURL("image/png", 0);
+                const base64 = copyStage.toCanvas().toDataURL("image/png");
                 Object.assign(output, {
                     width: selectedWidth,
                     height: selectedHeight,
@@ -381,7 +381,9 @@ const imagePrompt = (function () {
                     copyDrawLayer.show();
                     const copyCursorLayer = copyStage.findOne("#cursorLayer");
                     copyCursorLayer.hide();
-                    foreground.src = copyStage.toDataURL({ pixelRatio: 2 });
+                    foreground.src = copyStage.toDataURL({
+                        mimeType: "image/png",
+                    }, 1);
                 }
             }).then(() => {
                 if (stage !== null && context !== null) {

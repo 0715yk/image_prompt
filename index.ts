@@ -429,7 +429,7 @@ const imagePrompt = (function () {
       });
 
       copyStage.add(imageLayer.clone());
-      const base64 = copyStage.toCanvas().toDataURL("image/png", 0);
+      const base64 = copyStage.toCanvas().toDataURL("image/png");
       Object.assign(output, {
         width: selectedWidth,
         height: selectedHeight,
@@ -472,7 +472,12 @@ const imagePrompt = (function () {
           ) as Konva.Layer;
           copyCursorLayer.hide();
 
-          foreground.src = copyStage.toDataURL({ pixelRatio: 2 });
+          foreground.src = copyStage.toDataURL(
+            {
+              mimeType: "image/png",
+            },
+            1
+          );
         }
       }).then(() => {
         if (stage !== null && context !== null) {
